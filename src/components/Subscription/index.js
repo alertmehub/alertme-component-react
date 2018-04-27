@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
 import * as actions from '../../actions';
 import Slider from '../Slider';
 import './styles.css';
@@ -10,7 +12,24 @@ class Subscription extends Component {
     super(props)
     this.state = {
       active: true,
+      selectedOption: '',
     }
+  }
+  handleChange = (selectedOption) => {
+    this.setState({ selectedOption });
+    console.log(`Selected: ${selectedOption.label}`);
+  }
+  renderMultiSelect(parameter) {
+    const {selectedOption} = this.state;
+    return (
+      <Select
+        name="form-field-name"
+        value={selectedOption}
+        onChange={this.handleChange}
+        multi={true}
+        options={parameter.lookup}
+      />
+    );
   }
   renderParameter(parameter) {
     if (parameter.ptype === 'hidden') {
@@ -24,6 +43,9 @@ class Subscription extends Component {
     }
     if (parameter.ptype === 'number') {
       return (<input className="am-input" value={parameter.value}/>);
+    }
+    if (parameter.ptype === 'lookup') {
+      return this.renderMultiSelect(parameter);
     }
   }
   renderParameters(parameters) {

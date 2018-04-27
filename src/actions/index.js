@@ -13,6 +13,14 @@ const subscriptions = [
         ptype: 'currency',
         label: 'Currency Parameter',
         value: 100,
+      },
+      {
+        ptype: 'lookup',
+        label: 'Lookup Parameter',
+        lookup:[
+          { value: 'one', label: 'One' },
+          { value: 'two', label: 'Two' },
+        ],
       }
     ]
   },
