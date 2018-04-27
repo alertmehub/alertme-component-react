@@ -14,6 +14,13 @@ class Subscription extends Component {
       active: true,
       selectedOption: '',
     }
+    this.toggleActiveHandler = this.toggleActiveHandler.bind(this);
+  }
+  toggleActiveHandler(e) {
+    e.preventDefault()
+    this.setState({
+      active: this.state.active ? false : true,
+    })
   }
   handleChange = (selectedOption) => {
     this.setState({ selectedOption });
@@ -62,11 +69,18 @@ class Subscription extends Component {
     }
     return paramsToPublish;
   }
-  renderInitialView() {
-    if (this.state.active) {
+  renderInitialView(active,deliveryOptions) {
+    const {subscriptions,subscriptionIndex} = this.props;
+    if (active) {
       return (
-          <div className="am-alert-parameters">
-            {this.renderParameters(this.props.subscription.parameters)}
+          <div>
+            <div className="am-alert-parameters">
+              {this.renderParameters(subscriptions[subscriptionIndex].parameters)}
+            </div>
+            <div className="am-alert-deliver-to">
+              <label htmlFor="options">Deliver To:</label>
+              {this.renderDeliveryOptions(deliveryOptions)}
+            </div>
           </div>
       );
     }
@@ -97,24 +111,22 @@ class Subscription extends Component {
     return opts;
   }
   render() {
-    const {subscription: {topic}, deliveryOptions} = this.props;
+    const {subscriptionIndex,subscriptions,deliveryOptions} = this.props;
+    console.log(`subscriptions[subscriptionIndex].active: ${subscriptions[subscriptionIndex].active}`)
     return (
       <div className="card fluid">
         <div className="section">
           <div>
             <div>
               <div className="slider">
-                <Slider />
+                <Slider subscriptionIndex={subscriptionIndex} toggleActiveHandler = {this.toggleActiveHandler}/>
               </div>
-              <div className="am-alert-name">{topic.label}</div>
-              <div className="am-alert-description">{topic.description}</div>
+              <div className="am-alert-name">{subscriptions[subscriptionIndex].topic.label}</div>
+              <div className="am-alert-description">{subscriptions[subscriptionIndex].topic.description}</div>
             </div>
           </div>
-          {this.renderInitialView()}
-          <div className="am-alert-deliver-to">
-            <label htmlFor="options">Deliver To:</label>
-            {this.renderDeliveryOptions(deliveryOptions)}
-          </div>
+          {this.renderInitialView(this.state.active,deliveryOptions)}
+
         </div>
       </div>
     );
@@ -123,6 +135,7 @@ class Subscription extends Component {
 const mapStateToProps = state => {
   return {
     deliveryOptions: state.deliveryOptions,
+    subscriptions: state.subscriptions,
   }
 }
 

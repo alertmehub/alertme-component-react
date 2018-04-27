@@ -17,6 +17,7 @@ export default (state = initialState, action) => {
         ...state,
         subscriptions: action.payload,
       }
+
     case 'FORM_UPDATE':
       return {
         ...state,

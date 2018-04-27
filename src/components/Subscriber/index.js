@@ -12,7 +12,7 @@ class Subscriber extends Component {
   renderSubscriptions() {
     let subscriptions = [];
     for (let i=0;i<this.props.subscriptions.length;i++) {
-      subscriptions.push(<Subscription key={i} subscription={this.props.subscriptions[i]}/>)
+      subscriptions.push(<Subscription key={i} subscriptionIndex={i}/>)
     }
     return subscriptions;
   }

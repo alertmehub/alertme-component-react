@@ -1,20 +1,20 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import './styles.css'
 
-export default class Slider extends Component {
+class Slider extends Component {
   constructor(props) {
     super(props)
-    this.state ={
-      on:true,
+    this.state = {
+      on:true
     }
   }
-  toggleSlider() {
-    console.log('TOGGLE SLIDER')
-    this.setState({
-      on: this.state.on ? false : true,
-    })
+  handleToggle(e) {
+    this.setState({on: this.state.on ? false : true,});
+    this.props.toggleActiveHandler(e);
   }
   renderSlider() {
+
     if (this.state.on) {
       return (
         <div className="am-slider am-slider-on">
@@ -32,9 +32,16 @@ export default class Slider extends Component {
   }
   render() {
     return (
-      <div onClick={() => this.toggleSlider()}>
+      <div onClick={(e) => {this.handleToggle(e)}}>
         {this.renderSlider()}
       </div>
     );
   }
 }
+const mapStateToProps = state => {
+  return {
+    subscriptions: state.subscriptions,
+  };
+}
+
+export default connect(mapStateToProps)(Slider);

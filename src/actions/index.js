@@ -44,15 +44,13 @@ const subscriptions = [
   }
 ]
 export const loadInitialDeliveryOptions = () => {
-  console.log('LOADING INITIAL DELIVERY OPS')
   return (dispatch) => {
     dispatch({type: 'INITIAL_DELIVERY_OPTIONS_FETCH', payload: deliveryOptions});
   }
 }
 
-export const loadInitialSubscriptions = () => {
 
-  console.log('LOADING INITIAL SUBS')
+export const loadInitialSubscriptions = () => {
   return (dispatch) => {
     dispatch({type: 'INITIAL_SUBSCRIPTIONS_FETCH', payload: subscriptions});
   }
