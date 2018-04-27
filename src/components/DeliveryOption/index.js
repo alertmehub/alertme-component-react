@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
+import { connect} from 'react-redux';
 import './styles.css';
+import * as actions from '../../actions';
 
 const patterns = {
   phone: /[\+]?[1]?[-\s\.]?[(]?(\d{3})[)]?[-\s\.]?(\d{3})[-\s\.]?(\d{4})/,
   e164: /^\+1(\d{3})(\d{3})(\d{4})$/,
   email: /\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}/
 }
-export default class DeliveryOption extends Component {
+class DeliveryOption extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -26,8 +28,8 @@ export default class DeliveryOption extends Component {
   cancelDeliveryOptionEdit() {
     this.setState({
       editing:false,
-      adding:false
-    })
+    });
+    this.props.cancelNewDeliveryOptionButtonPressed();
   }
   renderSaveButton() {
     if (!this.state.delivertoNotApproved) {
@@ -35,7 +37,7 @@ export default class DeliveryOption extends Component {
     }
   }
   renderDeleteButton() {
-    if (!this.state.adding) {
+    if (!this.props.addingDeliveryOption) {
       return <button className="am-button" key="delete">Delete</button>;
     }
   }
@@ -59,7 +61,7 @@ export default class DeliveryOption extends Component {
 
   }
   renderEditOption() {
-    const {option: {value,name,type}} = this.props;
+    const {option: {value,name,deliveryType}} = this.props;
     return (
       <div className="am-edit-option">
         <form>
@@ -78,7 +80,7 @@ export default class DeliveryOption extends Component {
     )
   }
   renderInitialView() {
-    const {option: {value,name,type}} = this.props;
+    const {option: {value,name,deliveryType}} = this.props;
     if (this.state.editing) {
         return (
           <div className="am-edit-option">
@@ -96,12 +98,11 @@ export default class DeliveryOption extends Component {
             </form>
           </div>
         )
-
     } else {
       return (
         <div>
           <span className="am-delivery-option" onClick={() => this.setState({editing:true})}>
-            {this.renderIcon(type)}
+            {this.renderIcon(deliveryType)}
             {value}
             <span className="am-delivery-option-name"> - {name}</span>
           </span>
@@ -113,3 +114,9 @@ export default class DeliveryOption extends Component {
     return this.renderInitialView();
   }
 }
+const mapStateToProps = state => {
+  return {
+    addingDeliveryOption: state.addingDeliveryOption
+  }
+}
+export default connect(mapStateToProps, actions)(DeliveryOption)

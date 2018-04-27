@@ -1,12 +1,10 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import DeliveryOption from '../DeliveryOption';
 import './styles.css';
+import {loadInitialDeliveryOptions,newDeliveryOptionButtonPressed} from '../../actions';
 
-const deliveryOptions = [
-  {value:'layne@rdacorp.com',name:'RDA',type:'email'},
-  {value:'(301) 646-1876', name:'Text',type:'sms'}
-]
-export default class DeliveryOptions extends Component {
+class DeliveryOptions extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -14,21 +12,25 @@ export default class DeliveryOptions extends Component {
     }
 
   }
+  componentWillMount() {
+    this.props.loadInitialDeliveryOptions();
+  }
   renderOptions() {
     let options = [];
-    for (let i=0; i<deliveryOptions.length;i++) {
+    for (let i=0; i<this.props.deliveryOptions.length;i++) {
       options.push(
         <DeliveryOption
           key={i}
-          option={deliveryOptions[i]}
+          option={this.props.deliveryOptions[i]}
         />
       )
     }
     return options;
   }
+
   renderAddOptionSection() {
-    if(!this.state.adding)
-      return (<button className="am-button" onClick={() => this.setState({adding:true})}>New Delivery Option</button>);
+    if(!this.props.addingDeliveryOption)
+      return (<button className="am-button" onClick={() => this.props.newDeliveryOptionButtonPressed()}>New Delivery Option</button>);
     else {
       return (
         <div className="am-add-delivery-option">
@@ -49,3 +51,12 @@ export default class DeliveryOptions extends Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    deliveryOptions: state.deliveryOptions,
+    addingDeliveryOption: state.addingDeliveryOption
+  }
+}
+
+export default connect(mapStateToProps, {loadInitialDeliveryOptions,newDeliveryOptionButtonPressed})(DeliveryOptions);
