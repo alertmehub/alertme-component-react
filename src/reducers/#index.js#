@@ -30,6 +30,12 @@ export default (state = initialState, action) => {
           ...state,
           addingDeliveryOption:true
       }
+  case 'SUBSCRIBER_FETCH':
+      return {
+	  ...state,
+	  subscriptions: action.payload.subscriptions,
+	  deliveryOptions: action.payload.deliveryOptions
+      }
       
   case 'CANCEL_NEW_DELIVERY_OPTION':
       return {

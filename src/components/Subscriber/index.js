@@ -4,7 +4,7 @@ import DeliveryOptions from '../DeliveryOptions';
 import './styles.css';
 import Subscription from '../Subscription';
 import {loadInitialSubscriptions} from '../../actions';
-
+//import {loadSubscriber} from '../../actions';
 class Subscriber extends Component {
   constructor(props) {
     super(props)
@@ -17,7 +17,9 @@ class Subscriber extends Component {
     return subscriptions;
   }
   componentWillMount() {
-    this.props.loadInitialSubscriptions();
+      this.props.loadInitialSubscriptions();
+      //this.props.loadSubscriber();
+
   }
   render() {
     return (
