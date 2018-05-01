@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import DeliveryOption from '../DeliveryOption';
 import './styles.css';
-import {loadInitialDeliveryOptions,newDeliveryOptionButtonPressed} from '../../actions';
+import {newDeliveryOptionButtonPressed} from '../../actions';
 
 class DeliveryOptions extends Component {
   constructor(props) {
@@ -12,9 +12,7 @@ class DeliveryOptions extends Component {
     }
 
   }
-  componentWillMount() {
-    this.props.loadInitialDeliveryOptions();
-  }
+
   renderOptions() {
     let options = [];
     for (let i=0; i<this.props.deliveryOptions.length;i++) {
@@ -59,4 +57,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, {loadInitialDeliveryOptions,newDeliveryOptionButtonPressed})(DeliveryOptions);
+export default connect(mapStateToProps, {newDeliveryOptionButtonPressed})(DeliveryOptions);

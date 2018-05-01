@@ -7,34 +7,30 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch(action.type) {
-    case 'INITIAL_DELIVERY_OPTIONS_FETCH':
-      return {
-        ...state,
-        deliveryOptions: action.payload,
-      }
-    case 'INITIAL_SUBSCRIPTIONS_FETCH':
-      return {
-        ...state,
-        subscriptions: action.payload,
-      }
 
-    case 'FORM_UPDATE':
+  case 'FORM_UPDATE':
       return {
-        ...state,
-        [action.payload.prop]: action.payload.value
+          ...state,
+          [action.payload.prop]: action.payload.value
       }
-    case 'NEW_DELIVERY_OPTION_BUTTON_PRESSED':
+  case 'NEW_DELIVERY_OPTION_BUTTON_PRESSED':
       return {
-        ...state,
-        addingDeliveryOption:true
+          ...state,
+          addingDeliveryOption:true
       }
-
-    case 'CANCEL_NEW_DELIVERY_OPTION':
+  case 'SUBSCRIBER_FETCH':
       return {
-        ...state,
-        addingDeliveryOption:false
+	  ...state,
+	  subscriptions: action.payload.subscriptions,
+	  deliveryOptions: action.payload.deliveryOptions
       }
-    default:
+      
+  case 'CANCEL_NEW_DELIVERY_OPTION':
+      return {
+          ...state,
+          addingDeliveryOption:false
+      }
+  default:
       return state;
   }
 }

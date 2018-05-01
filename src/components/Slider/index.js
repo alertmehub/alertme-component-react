@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {connect} from 'react-redux';
 import './styles.css'
 
 class Slider extends Component {
@@ -38,10 +37,5 @@ class Slider extends Component {
     );
   }
 }
-const mapStateToProps = state => {
-  return {
-    subscriptions: state.subscriptions,
-  };
-}
 
-export default connect(mapStateToProps)(Slider);
+export default Slider;

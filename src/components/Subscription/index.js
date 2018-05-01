@@ -5,8 +5,14 @@ import 'react-select/dist/react-select.css';
 import * as actions from '../../actions';
 import Slider from '../Slider';
 import './styles.css';
+import _ from 'lodash';
 
-
+const convertLookupItem = (item) => {
+    return {
+	value: item.id,
+	label: item.itemName
+    }	
+}
 class Subscription extends Component {
   constructor(props) {
     super(props)
@@ -26,36 +32,44 @@ class Subscription extends Component {
     this.setState({ selectedOption });
     console.log(`Selected: ${selectedOption.label}`);
   }
-  renderMultiSelect(parameter) {
+    renderMultiSelect(parameter,value) {
+	const { subscription} = this.props;
+	const lookupList = subscription.topic.lookupLists.find(list => list.name === parameter.lookup)
+	
+
     const {selectedOption} = this.state;
     return (
       <Select
         name="form-field-name"
-        value={selectedOption}
+        value={_.map(value, convertLookupItem)}
         onChange={this.handleChange}
         multi={true}
-        options={parameter.lookup}
+        options={ _.map(lookupList.values,convertLookupItem)}
       />
     );
   }
-  renderParameter(parameter) {
+    renderParameter(parameter) {
+	const {subscription} = this.props;
+	const value = subscription.parameters[parameter.name]
+	
     if (parameter.ptype === 'hidden') {
       return(<div></div>);
     }
     if (parameter.ptype === 'currency') {
-      return (<input className="am-input" value={parameter.value}/>);
+      return (<input className="am-input" value={value}/>);
     }
     if (parameter.ptype === 'text') {
-      return (<input className="am-input" value={parameter.value}/>);
+	return (<input className="am-input" value={value}/>);
     }
     if (parameter.ptype === 'number') {
-      return (<input className="am-input" value={parameter.value}/>);
+      return (<input className="am-input" value={value}/>);
     }
     if (parameter.ptype === 'lookup') {
-      return this.renderMultiSelect(parameter);
+	return this.renderMultiSelect(parameter,value);
     }
   }
-  renderParameters(parameters) {
+    renderParameters(parameters) {
+	console.log(`parameters.length: ${parameters.length}`)
     let paramsToPublish = [];
     for (let i=0; i<parameters.length;i++) {
 
@@ -69,13 +83,13 @@ class Subscription extends Component {
     }
     return paramsToPublish;
   }
-  renderInitialView(active,deliveryOptions) {
-    const {subscriptions,subscriptionIndex} = this.props;
+    renderInitialView(active,deliveryOptions,parameters) {
+
     if (active) {
       return (
           <div>
             <div className="am-alert-parameters">
-              {this.renderParameters(subscriptions[subscriptionIndex].parameters)}
+              {this.renderParameters(parameters)}
             </div>
             <div className="am-alert-deliver-to">
               <label htmlFor="options">Deliver To:</label>
@@ -110,22 +124,23 @@ class Subscription extends Component {
     }
     return opts;
   }
-  render() {
-    const {subscriptionIndex,subscriptions,deliveryOptions} = this.props;
-    console.log(`subscriptions[subscriptionIndex].active: ${subscriptions[subscriptionIndex].active}`)
+    render() {
+	
+	const {deliveryOptions,subscription} = this.props;
+      
     return (
       <div className="card fluid">
         <div className="section">
           <div>
             <div>
               <div className="slider">
-                <Slider subscriptionIndex={subscriptionIndex} toggleActiveHandler = {this.toggleActiveHandler}/>
+                <Slider toggleActiveHandler = {this.toggleActiveHandler}/>
               </div>
-              <div className="am-alert-name">{subscriptions[subscriptionIndex].topic.label}</div>
-              <div className="am-alert-description">{subscriptions[subscriptionIndex].topic.description}</div>
+              <div className="am-alert-name">{subscription.topic.label}</div>
+              <div className="am-alert-description">{subscription.topic.description}</div>
             </div>
           </div>
-          {this.renderInitialView(this.state.active,deliveryOptions)}
+            {this.renderInitialView(this.state.active,deliveryOptions,subscription.topic.parameters)}
 
         </div>
       </div>
@@ -135,7 +150,6 @@ class Subscription extends Component {
 const mapStateToProps = state => {
   return {
     deliveryOptions: state.deliveryOptions,
-    subscriptions: state.subscriptions,
   }
 }
 
