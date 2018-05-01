@@ -14,11 +14,6 @@ export default (state = initialState, action) => {
           ...state,
           deliveryOptions: action.payload,
       }
-  case 'INITIAL_SUBSCRIPTIONS_FETCH':
-      return {
-          ...state,
-          subscriptions: action.payload,
-      }
       
   case 'FORM_UPDATE':
       return {
@@ -29,6 +24,12 @@ export default (state = initialState, action) => {
       return {
           ...state,
           addingDeliveryOption:true
+      }
+  case 'SUBSCRIBER_FETCH':
+      return {
+	  ...state,
+	  subscriptions: action.payload.subscriptions,
+	  deliveryOptions: action.payload.deliveryOptions
       }
       
   case 'CANCEL_NEW_DELIVERY_OPTION':

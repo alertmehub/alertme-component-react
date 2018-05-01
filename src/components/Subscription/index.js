@@ -33,8 +33,8 @@ class Subscription extends Component {
     console.log(`Selected: ${selectedOption.label}`);
   }
     renderMultiSelect(parameter,value) {
-	const { subscriptions,subscriptionIndex} = this.props;
-	const lookupList = subscriptions[subscriptionIndex].topic.lookupLists.find(list => list.name === parameter.lookup)
+	const { subscription} = this.props;
+	const lookupList = subscription.topic.lookupLists.find(list => list.name === parameter.lookup)
 	
 
     const {selectedOption} = this.state;
@@ -49,8 +49,8 @@ class Subscription extends Component {
     );
   }
     renderParameter(parameter) {
-	const {subscriptions, subscriptionIndex} = this.props;
-	const value = subscriptions[subscriptionIndex].parameters[parameter.name]
+	const {subscription} = this.props;
+	const value = subscription.parameters[parameter.name]
 	
     if (parameter.ptype === 'hidden') {
       return(<div></div>);
@@ -126,8 +126,7 @@ class Subscription extends Component {
   }
     render() {
 	
-    const {subscriptionIndex,subscriptions,deliveryOptions} = this.props;
-      //console.log(`Object.keys(subscriptions[subscriptionIndex].topic): ${Object.keys(subscriptions[subscriptionIndex].topic}`)
+	const {deliveryOptions,subscription} = this.props;
       
     return (
       <div className="card fluid">
@@ -135,13 +134,13 @@ class Subscription extends Component {
           <div>
             <div>
               <div className="slider">
-                <Slider subscriptionIndex={subscriptionIndex} toggleActiveHandler = {this.toggleActiveHandler}/>
+                <Slider toggleActiveHandler = {this.toggleActiveHandler}/>
               </div>
-              <div className="am-alert-name">{subscriptions[subscriptionIndex].topic.label}</div>
-              <div className="am-alert-description">{subscriptions[subscriptionIndex].topic.description}</div>
+              <div className="am-alert-name">{subscription.topic.label}</div>
+              <div className="am-alert-description">{subscription.topic.description}</div>
             </div>
           </div>
-            {this.renderInitialView(this.state.active,deliveryOptions,subscriptions[subscriptionIndex].topic.parameters)}
+            {this.renderInitialView(this.state.active,deliveryOptions,subscription.topic.parameters)}
 
         </div>
       </div>
@@ -151,7 +150,6 @@ class Subscription extends Component {
 const mapStateToProps = state => {
   return {
     deliveryOptions: state.deliveryOptions,
-    subscriptions: state.subscriptions,
   }
 }
 

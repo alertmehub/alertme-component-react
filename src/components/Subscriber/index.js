@@ -3,23 +3,22 @@ import {connect} from 'react-redux';
 import DeliveryOptions from '../DeliveryOptions';
 import './styles.css';
 import Subscription from '../Subscription';
-import {loadInitialSubscriptions} from '../../actions';
-//import {loadSubscriber} from '../../actions';
+import {loadSubscriber} from '../../actions';
+
 class Subscriber extends Component {
   constructor(props) {
     super(props)
   }
-  renderSubscriptions() {
-    let subscriptions = [];
-    for (let i=0;i<this.props.subscriptions.length;i++) {
-      subscriptions.push(<Subscription key={i} subscriptionIndex={i}/>)
+    renderSubscriptions() {
+	const { subscriptions} = this.props;
+    let subscriptionsToRender = [];
+    for (let i=0;i<subscriptions.length;i++) {
+	subscriptionsToRender.push(<Subscription key={i} subscriptionIndex={i} subscription={subscriptions[i]} />)
     }
-    return subscriptions;
+    return subscriptionsToRender;
   }
   componentWillMount() {
-      this.props.loadInitialSubscriptions();
-      //this.props.loadSubscriber();
-
+      this.props.loadSubscriber();
   }
   render() {
     return (
@@ -47,4 +46,4 @@ const mapStateToProps = state => {
   };
 }
 
-export default connect(mapStateToProps, {loadInitialSubscriptions})(Subscriber);
+export default connect(mapStateToProps, {loadSubscriber})(Subscriber);
