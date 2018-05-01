@@ -8,13 +8,6 @@ const initialState = {
 export default (state = initialState, action) => {
   switch(action.type) {
 
-  case 'INITIAL_DELIVERY_OPTIONS_FETCH':
-      console.log(`action.payload: ${action.payload}`)
-      return {
-          ...state,
-          deliveryOptions: action.payload,
-      }
-      
   case 'FORM_UPDATE':
       return {
           ...state,

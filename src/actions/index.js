@@ -1,13 +1,4 @@
 
-export const receiveDeliveryOptions = (json) => {
-    return {
-	type: 'INITIAL_DELIVERY_OPTIONS_FETCH',
-	payload:json.deliveryOptions,
-	receivedAt: Date.now()
-    }
-}
-
-
 export const receiveSubscriber = (json) => {
     return (dispatch) => {
 	dispatch({
@@ -34,28 +25,6 @@ export const loadSubscriber = () => {
 		}),
 	})
     }
-}
-
-
-
-export const loadInitialDeliveryOptions = () => {
-
-  return (dispatch) => {
-      dispatch({
-	  type: 'INITIAL_DELIVERY_OPTIONS_FETCH',
-	  payload:     fetch('https://component.alertmehub.com/api/v1/subscribers/test.com/token1')
-	.then((response) => {
-	    return response.json()
-	})
-	.then((myJson) => {
-	    console.log(`deliveryOptios: ${myJson.deliveryOptions}`)
-	    return dispatch(receiveDeliveryOptions(myJson))
-	})
-	.catch((error) => {
-	    console.log('error occurred',error)
-	}),
-      });
-  }
 }
 
 export const formUpdate = ({prop, value}) => {
