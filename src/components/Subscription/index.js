@@ -1,156 +1,470 @@
+/*
+ * File: src/components/Subscription/index.js
+ * author: Sam Everett
+ * email: everett@rdacorp.com
+ * last update: 05/03/2018
+ *
+ */
+
 import React, {Component} from 'react';
-import {connect} from 'react-redux';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-import * as actions from '../../actions';
 import Slider from '../Slider';
 import './styles.css';
 import _ from 'lodash';
+import {toggleActiveSubscription,loadSubscriber,updateSubscription} from '../../actions';
+import {connect} from 'react-redux'
+
+/******************************************************************************************
+ ***************************** H E L P E R   F U N C T I O N S ****************************
+ *********8*************************************8******************************************/
+
+/*
+ * C O N V E R T   L O O K U P   I T E M
+ */
 
 const convertLookupItem = (item) => {
-    return {
-	value: item.id,
-	label: item.itemName
-    }	
+
+    if (item.id) {
+
+	return {
+	    value: item.id,
+	    label: item.itemName,
+	    group: item.group
+	}
+    } else {
+
+	return {
+	    value: item.value,
+	    label: item.label,
+	    group: item.group
+	}
+    }
 }
+
+/*
+ * U N C O N V E R T   L O O K U P   I T E M
+ */
+
+const unConvertLookupItem = (item) => {
+
+    if (item.id) {
+
+	return {
+	    id: item.id,
+	    itemName: item.itemName,
+	    group: item.group
+	}
+    } else {
+
+	return {
+	    id: item.value,
+	    itemName: item.label,
+	    group: item.group
+	}
+    } 
+}
+
 class Subscription extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      active: true,
-      selectedOption: '',
-    }
-    this.toggleActiveHandler = this.toggleActiveHandler.bind(this);
-  }
-  toggleActiveHandler(e) {
-    e.preventDefault()
-    this.setState({
-      active: this.state.active ? false : true,
-    })
-  }
-  handleChange = (selectedOption) => {
-    this.setState({ selectedOption });
-    console.log(`Selected: ${selectedOption.label}`);
-  }
-    renderMultiSelect(parameter,value) {
-	const { subscription} = this.props;
-	const lookupList = subscription.topic.lookupLists.find(list => list.name === parameter.lookup)
-	
 
-    const {selectedOption} = this.state;
-    return (
-      <Select
-        name="form-field-name"
-        value={_.map(value, convertLookupItem)}
-        onChange={this.handleChange}
-        multi={true}
-        options={ _.map(lookupList.values,convertLookupItem)}
-      />
-    );
-  }
+    /*
+     * C O N S T R U C T O R
+     */
+
+    constructor(props) {
+
+	super(props)
+
+	this.state = {
+	    active: true,
+	    parameterValues: null,
+	    parameterValuesObjects: {},
+	    dirty: false,
+	    deliverTo: [],
+	    deliveryOptionsBoolObject: {},
+	    checked: true
+	}
+
+	this.toggleActiveHandler = this.toggleActiveHandler.bind(this);
+
+    }
+    
+    /******************************************************************************************
+     ******************************* L I F E C Y C L E   H O O K S ****************************
+     *********8*************************************8******************************************/
+
+    /*
+     * C O M P O N E N T   W I L L   M O U N T
+     */ 
+
+    componentWillMount() {
+
+	const {subscription,subscriber} = this.props
+	let obj = {}
+
+	subscriber.deliveryOptions.forEach((option) => {
+	    obj[option.value] = subscription.deliverTo.includes(option.value)
+	})
+
+	let paramVals = {}
+
+	Object.keys(subscription.parameters).forEach((parameterName) => {
+	    paramVals[parameterName] = {initialValue: subscription.parameters[parameterName],
+					newValue: ''}
+	})
+
+	
+	this.setState({
+	    parameterValues: subscription.parameters,
+	    deliverTo: subscription.deliverTo,
+	    active: subscription.active,
+	    deliveryOptionsBoolObject: obj,
+	    parameterValuesObjects: paramVals
+	})
+	
+    }
+
+    /******************************************************************************************
+     *************************** E V E N T   H A N D L E R S **********************************
+     *********8*************************************8******************************************/
+
+    /*
+     * T O G G L E   A C T I V E   H A N D L E R
+     */
+
+    toggleActiveHandler(e) {
+	const { subscription, publisherId, token } = this.props
+	e.preventDefault()
+	this.setState({
+	    active: !this.state.active,
+	})
+	this.props.toggleActiveSubscription(subscription,publisherId,token)
+    }
+
+    /*
+     * H A N D L E   C H A N G E
+     */
+
+    handleChange = (parameter, value) => {
+
+	let currentParamVals = this.state.parameterValuesObjects
+	if (!this.state.dirty) {
+	    // make sure that newValues are not empty
+	    Object.keys(this.state.parameterValuesObjects).forEach((parameterName) => {
+		currentParamVals[parameterName].newValue = currentParamVals[parameterName].initialValue
+	    })
+	}
+	if (parameter.ptype !== 'lookup') {
+	    currentParamVals[parameter.name].newValue = value.target.value
+	} else {
+	    currentParamVals[parameter.name].newValue = _.map(value, unConvertLookupItem)
+	}
+
+	this.setState({
+
+	    parameterValuesObjects: currentParamVals,
+	    dirty: true,
+	})
+    }
+
+    /*
+     * S E N D   U P D A T E S
+     */
+    
+    sendUpdates() {
+
+	const { subscription, token, publisherId } = this.props
+	const { parameterValuesObjects } = this.state
+
+	let updatedSubscription = subscription
+	Object.keys(subscription.parameters).forEach((paramName) => {
+	    updatedSubscription.parameters[paramName] = parameterValuesObjects[paramName].newValue
+	})
+	
+	this.props.updateSubscription(updatedSubscription, publisherId, token)
+	let newValsObjs = parameterValuesObjects
+	Object.keys(parameterValuesObjects).forEach((parameterName) => {
+	    newValsObjs[parameterName].initialValue = newValsObjs[parameterName].newValue
+	})
+	this.setState({dirty: false,
+		       parameterValuesObjects: newValsObjs})
+
+    }
+
+    /*
+     * C A N C E L   E D I T S
+     */
+
+    cancelEdits() {
+	//this.props.loadSubscriber()
+	this.props.cancelSubscriptionEdits()
+
+	this.setState({
+	    parameterValues: this.props.subscription.parameters,
+	    dirty: false,
+	})
+    }
+
+    /******************************************************************************************
+     ******************************* R E N D E R E R S ****************************************
+     *********8*************************************8******************************************/
+
+    /*
+     * R E N D E R   M U L T I S E L E C T
+     */
+    
+    renderMultiselect(parameter) {
+
+	const { subscription: {topic: {lookupLists}}} = this.props;
+	const lookupList = lookupLists.find(list => list.name === parameter.lookup)
+	if (!this.state.dirty) {
+	return (
+		<Select
+            name="form-field-name"
+            value={_.map(this.state.parameterValuesObjects[parameter.name].initialValue, convertLookupItem)}
+	    onChange={this.handleChange.bind(this, parameter)}
+            multi={true}
+            options={ _.map(lookupList.values,convertLookupItem)}
+		/>
+	);
+	} else {
+	    return (
+		    <Select
+		name="form-field-name"
+		value={_.map(this.state.parameterValuesObjects[parameter.name].newValue, convertLookupItem)}
+		onChange={this.handleChange.bind(this, parameter)}
+		multi={true}
+		options={ _.map(lookupList.values,convertLookupItem)}
+		    />
+	);
+	}
+    }
+
+    /*
+     * R E N D E R   P A R A M E T E R
+     */
+
     renderParameter(parameter) {
-	const {subscription} = this.props;
-	const value = subscription.parameters[parameter.name]
 	
-    if (parameter.ptype === 'hidden') {
-      return(<div></div>);
+	const { parameterValuesObjects } = this.state
+
+	const valueNew = parameterValuesObjects[parameter.name].newValue
+	const valueInitial = parameterValuesObjects[parameter.name].initialValue
+	
+	if (parameter.ptype === 'hidden') {
+	    return(<div></div>);
+	}
+
+	if (parameter.ptype === 'currency') {
+	    return (
+		    <input
+		key={parameter.name}
+		className="am-input"
+		value={this.state.dirty ? valueNew : valueInitial}
+		onChange={this.handleChange.bind(this, parameter)}
+		    />
+	    );
+	}
+
+	if (parameter.ptype === 'text') {
+	    return (
+		    <input
+		key={parameter.name}
+		className="am-input"
+		value={this.state.dirty ? valueNew : valueInitial}
+		onChange={this.handleChange.bind(this, parameter)}
+		    />
+	    );
+	}
+
+	if (parameter.ptype === 'number') {
+	    return (
+		    <input
+		key={parameter.name}
+		className="am-input"
+		value={this.state.dirty ? valueNew : valueInitial}
+		onChange={this.handleChange.bind(this, parameter)}
+		    />
+	    );
+	}
+
+	if (parameter.ptype === 'lookup') {
+	    return this.renderMultiselect(parameter);
+	}
     }
-    if (parameter.ptype === 'currency') {
-      return (<input className="am-input" value={value}/>);
-    }
-    if (parameter.ptype === 'text') {
-	return (<input className="am-input" value={value}/>);
-    }
-    if (parameter.ptype === 'number') {
-      return (<input className="am-input" value={value}/>);
-    }
-    if (parameter.ptype === 'lookup') {
-	return this.renderMultiSelect(parameter,value);
-    }
-  }
+
+    /*
+     * R E N D E R   P A R A M E T E R S
+     */
+    
     renderParameters(parameters) {
-	console.log(`parameters.length: ${parameters.length}`)
-    let paramsToPublish = [];
-    for (let i=0; i<parameters.length;i++) {
+	
+	let paramsToRender = [];
+	for (let i=0; i<parameters.length;i++) {
+	    
+	    paramsToRender.push(
+		    <div key={i}>
+		    <label>{parameters[i].label}</label><br/>
+		    {this.renderParameter(parameters[i])}
+		</div>
+	    )
+	}
 
-      paramsToPublish.push(
-        <div key={i}>
-          <label>{parameters[i].label}</label><br/>
-          {this.renderParameter(parameters[i])}
-        </div>
-      )
+	return paramsToRender;
+	
+    }
+
+    /* 
+     * R E N D E R   D I R T Y   B U T T O N S 
+     */
+    
+    renderDirtyButtons() {
+
+	if (this.state.dirty) {
+	    return (
+		    <span className="am-alert-save-cancel">
+		    <button onClick={(e)=> this.sendUpdates(e)}>Save</button>
+		    <button onClick={(e)=> this.cancelEdits(e)}>Cancel</button>
+		    </span>
+	    )
+	}
+    }
+
+    /*
+     * H A N D L E   C H E C K B O X   E V E N T
+     */
+
+    handleCheckboxEvent(option,e) {
+
+	let newList = this.state.deliverTo
+	let index = newList.indexOf(option.value)
+
+	if (index > -1) {
+	    newList.splice(index,1)
+	} else {
+	    newList.push(option.value)
+	}
+
+	const {subscription,subscriber,publisherId,token} = this.props
+	let obj = {}
+	subscriber.deliveryOptions.forEach((option) => {
+	    obj[option.value] = subscription.deliverTo.includes(option.value)
+	})
+	this.setState({
+	    deliverTo:newList,
+	    deliveryOptionsBoolObject: obj
+	})
+
+	/* perform action that updates database version of subscription deliverTo's */
+	this.props.updateSubscription(this.props.subscription,publisherId,token)
 
     }
-    return paramsToPublish;
-  }
-    renderInitialView(active,deliveryOptions,parameters) {
 
-    if (active) {
-      return (
-          <div>
-            <div className="am-alert-parameters">
-              {this.renderParameters(parameters)}
-            </div>
-            <div className="am-alert-deliver-to">
-              <label htmlFor="options">Deliver To:</label>
-              {this.renderDeliveryOptions(deliveryOptions)}
-            </div>
-          </div>
-      );
+    /*
+     * R E N D E R   D E L I V E R Y   O P T I O N
+     */
+
+    renderDeliveryOption(option, key) {
+
+	if (option.deliveryType === 'sms') {
+	    return (
+		    <div  key={key}>
+		    <input type="checkbox" name="options" onChange={(e) => this.handleCheckboxEvent(option,e)} checked={this.state.deliveryOptionsBoolObject[option.value]} />
+		    <label>{option.name}</label>
+		    <svg className="am-icon"><use href="#chat" /></svg>
+		    </div>
+	    )
+	}
+
+	return (
+		<div key={key}>
+		<input type="checkbox" name="options" onChange={(e) => this.handleCheckboxEvent(option,e)} checked={this.state.deliveryOptionsBoolObject[option.value]} />
+		<label>{option.name}</label>
+		<svg className="am-icon"><use href="#email" /></svg>
+		</div>
+	)
+
     }
-  }
-  renderDeliveryOption(option, key) {
-    if (option.deliveryType == 'sms') {
-      return (
-        <div className="pure-checkbox" key={key}>
-          <input type="checkbox" name="options" />
-          <label>{option.name}</label>
-          <svg className="am-icon"><use href="#chat" /></svg>
-        </div>
-      )
+
+    /*
+     * R E N D E R   D E L I V E R Y   O P T I O N S
+     */
+    
+    renderDeliveryOptions(deliveryOptions) {
+	let opts = [];
+	for (let i=0;i<deliveryOptions.length;i++) {
+	    opts.push(this.renderDeliveryOption(deliveryOptions[i], i))
+	}
+	return opts;
     }
-    return (
-      <div className="pure-checkbox" key={key}>
-        <input type="checkbox" name="options" />
-        <label>{option.name}</label>
-        <svg className="am-icon"><use href="#email" /></svg>
-      </div>
-    )
-  }
-  renderDeliveryOptions(deliveryOptions) {
-    let opts = [];
-    for (let i=0;i<deliveryOptions.length;i++) {
-      opts.push(this.renderDeliveryOption(deliveryOptions[i], i))
+
+    /*
+     * R E N D E R   I N I T I A L   V I E W 
+     */
+
+    renderInitialView(deliveryOptions,parameters) {
+	if (this.state.active) {
+	    return (
+		    <div>
+		    {this.renderDirtyButtons()}
+		    <div className="am-alert-parameters">
+		    {this.renderParameters(parameters)}
+		</div>
+		    <div className="am-alert-deliver-to">
+		    <label htmlFor="options">Deliver To:</label>
+		    {this.renderDeliveryOptions(deliveryOptions)}
+		</div>
+		    </div>
+	    );
+	}
     }
-    return opts;
-  }
+
+    /*
+     * O M E G A   R E N D E R
+     */
+    
     render() {
 	
 	const {deliveryOptions,subscription} = this.props;
-      
-    return (
-      <div className="card fluid">
-        <div className="section">
-          <div>
-            <div>
-              <div className="slider">
-                <Slider toggleActiveHandler = {this.toggleActiveHandler}/>
-              </div>
-              <div className="am-alert-name">{subscription.topic.label}</div>
-              <div className="am-alert-description">{subscription.topic.description}</div>
+
+	return (
+		<div className="card fluid">
+		<div className="section">
+		<div>
+		<div>
+		<div className="slider">
+                <Slider toggleActiveHandler = {this.toggleActiveHandler}
+	    active={this.state.active} />
+		</div>
+		<div className="am-alert-name">{subscription.topic.label}</div>
+		<div className="am-alert-description">{subscription.topic.description}</div>
+		</div>
+		</div> 
+		{this.renderInitialView(
+		    deliveryOptions,
+		    subscription.topic.parameters
+		)}
             </div>
-          </div>
-            {this.renderInitialView(this.state.active,deliveryOptions,subscription.topic.parameters)}
-
-        </div>
-      </div>
-    );
-  }
+		</div>
+	);
+    }
 }
+
+/******************************************************************************************
+ ******************************* R E D U X   C O N N E C T I O N **************************
+ *********8*************************************8******************************************/
+
 const mapStateToProps = state => {
-  return {
-    deliveryOptions: state.deliveryOptions,
-  }
+    return {
+	subscriber: state.subscriber,
+	publisherId: state.publisherId,
+	token: state.token
+    }
 }
 
-export default connect(mapStateToProps, actions)(Subscription);
+export default connect(mapStateToProps, {
+    toggleActiveSubscription,
+    loadSubscriber,
+    updateSubscription
+})(Subscription);
+

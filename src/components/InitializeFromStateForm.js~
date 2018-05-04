@@ -1,0 +1,15 @@
+import React from 'React'
+import { connect } from 'react-redux'
+import { Field, reduxForm } from 'redux-form'
+import { load as loadAccount } from '../actions'
+const data = {
+    firstName: 'Jane',
+    lastName: 'Doe',
+    age: '42',
+    sex: 'fem',
+    employed: true,
+    favoriteColor: 'Blue',
+    bio: 'Born to write amazing redux code'
+}
+
+const colors = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Indigo', 'Violet']
