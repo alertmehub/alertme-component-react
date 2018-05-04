@@ -6,6 +6,10 @@ import './App.css';
 import Subscriber from './Subscriber';
 import reducers from '../reducers';
 
+/*
+ * D E F I N E   R E D U X   S T O R E
+ */
+
 const store = createStore(reducers,applyMiddleware(Thunk))
 
 class App extends Component {
@@ -13,7 +17,7 @@ class App extends Component {
     return (
       <Provider store={store}>
         <div className="App">
-          <Subscriber />
+            <Subscriber publisherId={this.props.publisherId} token={this.props.token} />
         </div>
       </Provider>
     );
