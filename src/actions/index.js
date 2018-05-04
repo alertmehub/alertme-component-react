@@ -6,8 +6,7 @@
  *
  */
 
-//const REMOTE_URL = 'https://component.alertmehub.com'
-const LOCAL_URL = 'http://10.1.140.206:3001'
+const REMOTE_URL = 'https://component.alertmehub.com/api/v1'
 
 /******************************************************************************************
  ************************************ R E C E I V E R S ***********************************
@@ -54,7 +53,7 @@ export const updateSubscription = (subscription,publisherId,token) => {
     return (dispatch) => {
 	dispatch({
 	    type: 'UPDATE_SUBSCRIPTION',
-	    payload: fetch(`${LOCAL_URL}/api/v1/subscriptions/${publisherId}/${token}`,
+	    payload: fetch(`${REMOTE_URL}/subscriptions/${publisherId}/${token}`,
 			   {
 			       method: 'PUT',
 			       body: JSON.stringify(subscription),
@@ -109,7 +108,7 @@ export const sendUpdates = (subscriber) => {
     return (dispatch) => {
 	dispatch({
 	    type: 'NO_TYPE',
-	    payload: fetch(`${LOCAL_URL}/api/v1/subscribers/${subscriber.publisherId}/${subscriber.token}`,
+	    payload: fetch(`${REMOTE_URL}/subscribers/${subscriber.publisherId}/${subscriber.token}`,
 			   {
 			       method: 'PUT',
 			       body: JSON.stringify(subscriber),
@@ -180,7 +179,7 @@ export const loadSubscriber = () => {
     return (dispatch) => {
 	dispatch({
 	    type: 'NO_TYPE',
-	    payload: fetch(`${LOCAL_URL}/api/v1/subscribers/test.com/token2`)
+	    payload: fetch(`${REMOTE_URL}/subscribers/test.com/token2`)
 		.then((response) => {
 		    return response.json()
 		})
