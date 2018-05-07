@@ -2,7 +2,7 @@
  * File: src/actions/index.js
  * author: Sam Everett
  * email: everett@rdacorp.com
- * last update: 05/03/2018
+ * last update: 05/07/2018
  *
  */
 
@@ -31,6 +31,7 @@ export const receiveSubscriber = (json) => {
  */
 
 export const receiveSubscription = (json) => {
+    
     return (dispatch) => {
 	dispatch({
 	    type: 'SUBSCRIPTION_FETCH',
@@ -104,7 +105,6 @@ export const toggleActiveSubscription = (subscription, publisherId, token) => {
 
 export const sendUpdates = (subscriber) => {
 
-    alert('ACTIONS <> sending updates')
     return (dispatch) => {
 	dispatch({
 	    type: 'NO_TYPE',

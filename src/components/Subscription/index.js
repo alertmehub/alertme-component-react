@@ -1,3 +1,4 @@
+
 /*
  * File: src/components/Subscription/index.js
  * author: Sam Everett
@@ -76,8 +77,7 @@ class Subscription extends Component {
 	super(props)
 
 	this.state = {
-	    active: true,
-	    parameterValues: null,
+	    active: null,
 	    parameterValuesObjects: {},
 	    dirty: false,
 	    deliverTo: [],
@@ -94,10 +94,10 @@ class Subscription extends Component {
      *********8*************************************8******************************************/
 
     /*
-     * C O M P O N E N T   W I L L   M O U N T
+     * C O M P O N E N T   D I D   M O U N T
      */ 
 
-    componentWillMount() {
+    componentDidMount() {
 
 	const {subscription,subscriber} = this.props
 	let obj = {}
@@ -112,10 +112,8 @@ class Subscription extends Component {
 	    paramVals[parameterName] = {initialValue: subscription.parameters[parameterName],
 					newValue: ''}
 	})
-
 	
 	this.setState({
-	    parameterValues: subscription.parameters,
 	    deliverTo: subscription.deliverTo,
 	    active: subscription.active,
 	    deliveryOptionsBoolObject: obj,
@@ -191,20 +189,6 @@ class Subscription extends Component {
 
     }
 
-    /*
-     * C A N C E L   E D I T S
-     */
-
-    cancelEdits() {
-	//this.props.loadSubscriber()
-	this.props.cancelSubscriptionEdits()
-
-	this.setState({
-	    parameterValues: this.props.subscription.parameters,
-	    dirty: false,
-	})
-    }
-
     /******************************************************************************************
      ******************************* R E N D E R E R S ****************************************
      *********8*************************************8******************************************/
@@ -216,12 +200,15 @@ class Subscription extends Component {
     renderMultiselect(parameter) {
 
 	const { subscription: {topic: {lookupLists}}} = this.props;
+	const { parameterValuesObjects } = this.state
 	const lookupList = lookupLists.find(list => list.name === parameter.lookup)
+	const initialVals = (parameterValuesObjects[parameter.name]) ? parameterValuesObjects[parameter.name].initialValue : []
+	const newVals = (parameterValuesObjects[parameter.name]) ? parameterValuesObjects[parameter.name].newValue : []
 	if (!this.state.dirty) {
 	return (
 		<Select
             name="form-field-name"
-            value={_.map(this.state.parameterValuesObjects[parameter.name].initialValue, convertLookupItem)}
+            value={_.map(initialVals, convertLookupItem)}
 	    onChange={this.handleChange.bind(this, parameter)}
             multi={true}
             options={ _.map(lookupList.values,convertLookupItem)}
@@ -231,7 +218,7 @@ class Subscription extends Component {
 	    return (
 		    <Select
 		name="form-field-name"
-		value={_.map(this.state.parameterValuesObjects[parameter.name].newValue, convertLookupItem)}
+		value={_.map(newVals, convertLookupItem)}
 		onChange={this.handleChange.bind(this, parameter)}
 		multi={true}
 		options={ _.map(lookupList.values,convertLookupItem)}
@@ -248,8 +235,8 @@ class Subscription extends Component {
 	
 	const { parameterValuesObjects } = this.state
 
-	const valueNew = parameterValuesObjects[parameter.name].newValue
-	const valueInitial = parameterValuesObjects[parameter.name].initialValue
+	const valueNew = (parameterValuesObjects[parameter.name]) ? parameterValuesObjects[parameter.name].newValue : ''
+	const valueInitial = (parameterValuesObjects[parameter.name]) ? parameterValuesObjects[parameter.name].initialValue : ''
 	
 	if (parameter.ptype === 'hidden') {
 	    return(<div></div>);
@@ -324,7 +311,7 @@ class Subscription extends Component {
 	    return (
 		    <span className="am-alert-save-cancel">
 		    <button onClick={(e)=> this.sendUpdates(e)}>Save</button>
-		    <button onClick={(e)=> this.cancelEdits(e)}>Cancel</button>
+		    <button onClick={() => this.setState({dirty:false})}>Cancel</button>
 		    </span>
 	    )
 	}
@@ -368,7 +355,7 @@ class Subscription extends Component {
 
 	if (option.deliveryType === 'sms') {
 	    return (
-		    <div  key={key}>
+		    <div  key={key}  >
 		    <input type="checkbox" name="options" onChange={(e) => this.handleCheckboxEvent(option,e)} checked={this.state.deliveryOptionsBoolObject[option.value]} />
 		    <label>{option.name}</label>
 		    <svg className="am-icon"><use href="#chat" /></svg>
@@ -424,7 +411,7 @@ class Subscription extends Component {
      */
     
     render() {
-	
+
 	const {deliveryOptions,subscription} = this.props;
 
 	return (
