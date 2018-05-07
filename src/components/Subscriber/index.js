@@ -23,12 +23,8 @@ class Subscriber extends Component {
 
 	super(props)
 
-	this.state = {
-	    checked: true
-	}
-
 	this.deleteDeliveryOptionAndUpdateSubscriber = this.deleteDeliveryOptionAndUpdateSubscriber.bind(this)
-	this.cancelSubscriptionEdits = this.cancelSubscriptionEdits.bind(this)
+
     }
 
     /******************************************************************************************
@@ -36,10 +32,10 @@ class Subscriber extends Component {
      *********8*************************************8******************************************/
     
     /*
-     * C O M P O N E N T   W I L L   M O U N T
+     * C O M P O N E N T   D I D   M O U N T
      */
 
-    componentWillMount() {
+    componentDidMount() {
 
 	this.props.setCredentials(this.props.publisherId, this.props.token)
 	this.props.loadSubscriber();
@@ -62,16 +58,6 @@ class Subscriber extends Component {
 	
     }
 
-    /*
-     * C A N C E L   S U B S C R I P T I O N   E D I T S
-     */
-
-    cancelSubscriptionEdits() {
-	this.props.loadSubscriber()
-	this.setState({checked: true})
-    }
-
-    
     /******************************************************************************************
      ******************************** R E N D E R E R S ***************************************
      *********8*************************************8******************************************/
@@ -81,6 +67,7 @@ class Subscriber extends Component {
      */
 
     renderSubscriptions() {
+
 	const { subscriber} = this.props;
 	let subscriptionsToRender = [];
 
@@ -91,7 +78,6 @@ class Subscriber extends Component {
 		    key={i}
 		    subscription={subscriber.subscriptions[i]}
 		    deliveryOptions={subscriber.deliveryOptions}
-		    cancelSubscriptionEdits={this.cancelSubscriptionEdits}
 			/>
 		)
 	    }

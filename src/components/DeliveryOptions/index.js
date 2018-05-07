@@ -40,14 +40,12 @@ class DeliveryOptions extends Component {
      *********8*************************************8******************************************/
 
     /*
-     * C O M P O N E N T   W I L L   M O U N T
+     * C O M P O N E N T   W I L L   R E C E I V E   P R O P S
      */
 
-    componentWillMount() {
+    componentWillReceiveProps(nextProps) {
 
-	if (this.props.deliveryOptions) {
-	    this.setState({newDeliveryOptionId: this.props.deliveryOptions.length+1})
-	}
+	this.setState({newDeliveryOptionId: nextProps.deliveryOptions.length+1})
     }
 
     /******************************************************************************************
@@ -81,7 +79,6 @@ class DeliveryOptions extends Component {
 	this.setState({adding:true})
     }
     
-
     /******************************************************************************************
      ************************************ R E N D E R E R S ***********************************
      *********8*************************************8******************************************/

@@ -29,6 +29,7 @@ class DeliveryOption extends Component {
      */
     
     constructor(props) {
+
 	super(props)
 	this.state = {
 	    editing: props.editing || false,
@@ -50,9 +51,6 @@ class DeliveryOption extends Component {
     
     saveDeliveryOption() {
 
-	console.log(`DELIVERY_OPTION <> SAVE_DELIVERY_OPTION`)
-	alert('saving deliveryoption')
-	alert(`this.props.adding: ${this.props.adding}`)
 	let deliveryOption = {
 	    id: this.props.adding ? this.props.newDeliveryOptionId : this.props.option.id,
 	    deliveryType: patterns.phone.test(this.state.optionValue) ? 'sms' : 'email',
@@ -60,9 +58,9 @@ class DeliveryOption extends Component {
 	    value: this.state.optionValue,
 	    status: this.props.option.status
 	}
-	alert('after obj creation')
+
 	if (this.props.adding) {
-	    alert('adding deliveryoption')
+
 	    this.props.subscriber.deliveryOptions.push(deliveryOption)
 	} else {
 
@@ -73,16 +71,18 @@ class DeliveryOption extends Component {
 		updatedOption[attribute] = deliveryOption[attribute]
 	    })
 	}
-	alert('before sendupdate')
+
 	this.props.sendUpdates(this.props.subscriber)
-	alert('after sendupdate')
+
     }
 
     /*
      * C A N C E L   D E L I V E R Y   O P T I O N   E D I T
      */
 
-    cancelDeliveryOptionEdit() {
+    cancelDeliveryOptionEdit(e) {
+
+	e.preventDefault()
 	this.setState({
 	    editing:false,
 	    optionValue: this.props.option.value
@@ -199,7 +199,7 @@ class DeliveryOption extends Component {
 		    <span>
 		    {this.renderSaveButton()}
 		    <button className="am-button" key="cancel"
-		onClick={()=>this.cancelDeliveryOptionEdit()}>
+		onClick={(e)=>this.cancelDeliveryOptionEdit(e)}>
 		    Cancel
 		</button>
 		    {this.renderDeleteButton()}
@@ -236,6 +236,7 @@ class DeliveryOption extends Component {
  *********8*************************************8******************************************/
 
 const mapStateToProps = state => {
+
     return {
 	subscriber: state.subscriber 
     }

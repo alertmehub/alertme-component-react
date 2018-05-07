@@ -2,7 +2,7 @@
  * File: src/reducers/index.js
  * author: Sam Everett
  * email: everett@rdacorp.com
- * last update: 05/03/2018
+ * last update: 05/07/2018
  *
  */
 
@@ -13,12 +13,10 @@
 
 const initialState = {
     deliveryOptions: [],
-    subscriptions: [],
     subscriber: {},
     publisherId: '',
     token: ''
 };
-
 
 
 export default (state = initialState, action) => {
@@ -36,21 +34,7 @@ export default (state = initialState, action) => {
 	  ...state,
 	  subscriber: action.payload
       }
-      
-  case 'SUBSCRIPTION_FETCH':
-      if (state.subscriber) {
-	  let newSubscriber = state.subscriber
-	  let foundIndex = newSubscriber.subscribers.findIndex(x => x._id === action.payload._id)
-	  newSubscriber.subscribers[foundIndex] = action.payload
 
-	  return {
-	      ...state,
-	      subscriber: newSubscriber
-	  }
-      } else {
-	  return state
-      }
-	     
   case 'SEND_UPDATES':
       return {
 	  ...state,
