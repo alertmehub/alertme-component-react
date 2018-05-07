@@ -81,6 +81,7 @@ class DeliveryOption extends Component {
      */
 
     cancelDeliveryOptionEdit(e) {
+
 	e.preventDefault()
 	this.setState({
 	    editing:false,

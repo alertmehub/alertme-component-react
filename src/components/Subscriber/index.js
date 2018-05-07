@@ -67,6 +67,7 @@ class Subscriber extends Component {
      */
 
     renderSubscriptions() {
+
 	const { subscriber} = this.props;
 	let subscriptionsToRender = [];
 
